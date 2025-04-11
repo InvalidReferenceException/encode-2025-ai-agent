@@ -1,26 +1,26 @@
 from pydantic import BaseModel, Field
 from portia.tool import Tool, ToolRunContext
 from pathlib import Path
-import os
+import requests
 import uuid
-import urllib.request
+import os
+import openai
+from dotenv import load_dotenv
+
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
-class GeminiImageGenSchema(BaseModel):
-    """Input schema for generating an image from a prompt."""
-    prompt: str = Field(..., description="The visual scene to generate (e.g. 'a castle in the forest')")
+class OpenAIImageGenSchema(BaseModel):
+    prompt: str = Field(..., description="The prompt describing the image to generate")
 
 
-class GeminiImageGenTool(Tool[str]):
-    """Generates an image from a prompt and saves it locally."""
-
-    id: str = "gemini_image_gen_tool"
-    name: str = "Gemini Image Generator Tool"
-    description: str = (
-        "Simulates generating an image from a prompt and saves it to the 'generated_images' folder."
-    )
-    args_schema: type[BaseModel] = GeminiImageGenSchema
-    output_schema: tuple[str, str] = ("str", "The local path to the generated image")
+class OpenAIImageGenTool(Tool[str]):
+    id: str = "openai_image_gen_tool"
+    name: str = "OpenAI Image Generator Tool"
+    description: str = "Generates a low-resolution PNG image using OpenAI DALL·E 3 and saves it locally."
+    args_schema: type[BaseModel] = OpenAIImageGenSchema
+    output_schema: tuple[str, str] = ("str", "The local file path to the generated image")
 
     def run(self, _: ToolRunContext, prompt: str) -> str:
         output_dir = Path("generated_images")
@@ -30,10 +30,19 @@ class GeminiImageGenTool(Tool[str]):
         image_path = output_dir / image_filename
 
         try:
-            # Placeholder image simulating generated content
-            placeholder = "https://via.placeholder.com/512.png?text=Gemini+Generated"
-            urllib.request.urlretrieve(placeholder, image_path)
-        except Exception as e:
-            return f"Failed to generate/save image: {e}"
+            response = openai.Image.create(
+                prompt=prompt,
+                n=1,
+                size="256x256",
+                response_format="url",
+            )
+            image_url = response["data"][0]["url"]
 
-        return str(image_path.resolve())
+            img_data = requests.get(image_url).content
+            with open(image_path, "wb") as f:
+                f.write(img_data)
+
+            return str(image_path.resolve())
+
+        except Exception as e:
+            return f"OpenAI image generation failed: {e}"
