@@ -11,13 +11,15 @@ from portia import (
 from portia import InMemoryToolRegistry
 from tools.image_text_tool import GeminiImagePromptTool
 from tools.input_validation_tool import SceneValidatorTool
+from tools.supabase_asset_uploader import SupabaseAssetUploaderTool
 
 load_dotenv()
 
 custom_tool_registry = InMemoryToolRegistry.from_local_tools(
     [
         GeminiImagePromptTool(),
-        SceneValidatorTool()
+        SceneValidatorTool(),
+        SupabaseAssetUploaderTool()
     ]
 )
 
@@ -37,6 +39,7 @@ user_input = "A desert outpost."
 
 agent_prompt = f"""
 Create an image prompt of {user_input}.
+Find the images around the posi
 Only do this if you think that this will fit contextually within the current images.
 If the request doesn't fit into contextually give an image prompt of something that you think should fit.
 """
