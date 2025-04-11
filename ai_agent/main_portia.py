@@ -40,11 +40,11 @@ portia = Portia(config=google_config, tools=custom_tool_registry)
 user_input = "A desert outpost."
 
 agent_prompt = f"""
-Create an image prompt of {user_input}.
-Only do this if you think that this will fit contextually within the current images.
-If the request doesn't fit into contextually give an image prompt of something that you think should fit.
-Use the prompt to generate an image and save it locally.
-Upload the locally saved image to supabase and give the supabase url.
+1. Validate the scene: '{user_input}' using the scene validator tool.
+2. If the validator returns 'true', use it directly to generate an image prompt.
+3. If the validator returns 'false', generate an alternative image prompt that fits better with the existing images.
+4. Use the image prompt to generate an image.
+5. Upload the image to Supabase and return the URL.
 """
 
 # Generate the plan from the user query

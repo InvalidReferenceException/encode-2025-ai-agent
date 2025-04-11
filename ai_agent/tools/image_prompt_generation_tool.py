@@ -4,7 +4,7 @@ import google.generativeai as genai
 import os
 
 # Configure Gemini with your API key
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 
 class GeminiPromptToolSchema(BaseModel):
@@ -26,7 +26,7 @@ class GeminiImagePromptTool(Tool[str]):
 
     def run(self, _: ToolRunContext, prompt: str) -> str:
         """Enhance a simple prompt using Gemini Flash."""
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        model = genai.GenerativeModel("gemini-2.0-flash")
 
         system_instruction = (
             "You are a creative AI helping generate richly detailed prompts for image generation. "
