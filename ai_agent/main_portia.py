@@ -9,7 +9,7 @@ from portia import (
 )
 
 from portia import InMemoryToolRegistry
-from tools.image_text_tool import GeminiImagePromptTool
+from ai_agent.tools.image_prompt_generation_tool import GeminiImagePromptTool
 from tools.input_validation_tool import SceneValidatorTool
 from tools.supabase_asset_uploader import SupabaseAssetUploaderTool
 
