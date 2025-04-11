@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from portia import (
     Config,
+    StorageClass,
     LLMModel,
     LLMProvider,
     Portia
@@ -23,6 +24,7 @@ custom_tool_registry = InMemoryToolRegistry.from_local_tools(
 
 # Create a default Portia config with LLM provider set to Google GenAI and model set to Gemini 2.0 Flash
 google_config = Config.from_default(
+    storage_class=StorageClass.CLOUD,
     llm_provider=LLMProvider.GOOGLE_GENERATIVE_AI,
     llm_model_name=LLMModel.GEMINI_2_0_FLASH
 )
@@ -34,7 +36,7 @@ portia = Portia(config=google_config, tools=custom_tool_registry)
 user_input = "A desert outpost."
 
 agent_prompt = f"""
-Create an image prompt of {user_input}. 
+Create an image prompt of {user_input}.
 Only do this if you think that this will fit contextually within the current images.
 If the request doesn't fit into contextually give an image prompt of something that you think should fit.
 """
@@ -48,7 +50,3 @@ print(plan.model_dump_json(indent=2))
 # Run the test query and print the output!
 plan_run = portia.run(agent_prompt)
 print(plan_run.model_dump_json(indent=2))
-
-# validation tool
-# takes surrounding tile images
-# checks if the user's request is valid within the environment of the images

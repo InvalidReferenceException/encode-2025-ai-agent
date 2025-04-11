@@ -44,5 +44,5 @@ class SceneValidatorTool(Tool[str]):
             f"('{prompt}') would be a natural fit or contextually appropriate. Be honest, and give reasoning."
         )
 
-        response = model.generate_content([query] + images, generation_config={"temperature": 0.4})
+        response = model.generate_content([query] + images, generation_config={"temperature": 0})
         return response.text.strip()
