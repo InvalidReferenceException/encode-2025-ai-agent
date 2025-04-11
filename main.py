@@ -21,6 +21,15 @@ google_config = Config.from_default(
 # Instantiate a Portia instance. Load it with the config and with the example tools.
 portia = Portia(config=google_config, tools=example_tool_registry)
 
+# Write a query to ask
+query = "When is the Hailey's Comet?"
+
+# Generate the plan from the user query
+plan = portia.plan(query)
+
+# Serialise into JSON and print the output
+print(plan.model_dump_json(indent=2))
+
 # Run the test query and print the output!
-plan_run = portia.run("When is the Hailey's Comet?")
+plan_run = portia.run(plan)
 print(plan_run.model_dump_json(indent=2))
