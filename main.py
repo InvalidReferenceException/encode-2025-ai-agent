@@ -20,3 +20,6 @@ def generate_asset(data: AssetRequest):
         "status": "success",
         "asset": file_name
     }
+
+# blockchain sends request to craft tile x
+# blockchain sends neighbouring tiles
