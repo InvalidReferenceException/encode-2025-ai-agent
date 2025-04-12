@@ -37,7 +37,9 @@ class GeminiImagePromptTool(Tool[dict]):
                 "You are a visual prompt engineer for AI-generated art."
                 "Given a user prompt, rewrite it as a description for a minimalistic image generation that will be used to create a 3D model."
                 "Respond with only the final prompt, no explanation or commentary."
-                "Here's an example: 'Create an image of a log house with neutral background. This image will be used to create a 3D object."
+                "Here's an example:"
+                "User Prompt: 'Create a beautiful log house"
+                "Your Output: 'Create an image of a log house with neutral background."
             )
 
             chat = model.start_chat(history=[])
