@@ -41,7 +41,7 @@ def run_tile_generation_agent(scene_description: str, output_tile_name: str) -> 
     builder.step(
         task="Validate scene from scene_description.",
         tool_id="gemini_scene_validator_tool",
-        inputs=[Variable(name="scene_prompt_input", description=f"A dict with {{ 'scene_description': scene_description, 'tile_index': output_tile_name }}")],
+        inputs=[Variable(name="scene_prompt_input", description=f"A dict with scene_description and tile_index")],
         output="validated_context"
     )
 
@@ -50,7 +50,7 @@ def run_tile_generation_agent(scene_description: str, output_tile_name: str) -> 
         task="Generate image prompt from scene description",
         tool_id="gemini_image_prompt_tool",
         output="prompt_context_valid",
-        inputs=[Variable(name="validated_context", description="tile_context with validation result")],
+        inputs=[Variable(name="true_image_prompt_input", description="A dict with scene_description, tile_index and scene_validation_result")],
         condition="if $validated_context.scene_validation_result is true"
     )
 
@@ -59,7 +59,7 @@ def run_tile_generation_agent(scene_description: str, output_tile_name: str) -> 
         task="Generate fallback image prompt",
         tool_id="gemini_image_prompt_tool",
         output="prompt_context_fallback",
-        inputs=[Variable(name="validated_context", description="tile_context with validation result")],
+        inputs=[Variable(name="false_image_prompt_input", description="A dict with scene_description, tile_index and scene_validation_result")],
         condition="if $validated_context.scene_validation_result is false"
     )
 
@@ -68,7 +68,7 @@ def run_tile_generation_agent(scene_description: str, output_tile_name: str) -> 
         task="Generate image from final_image_prompt",
         tool_id="openai_image_gen_tool",
         output="image_context_valid",
-        inputs=[Variable(name="prompt_context_valid", description="tile_context with final prompt")],
+        inputs=[Variable(name="true_image_gen_input", description="A dict with scene_description, tile_index and final_image_prompt")],
         condition="if $validated_context.scene_validation_result is true"
     )
 
@@ -77,7 +77,7 @@ def run_tile_generation_agent(scene_description: str, output_tile_name: str) -> 
         task="Generate image from fallback_image_prompt",
         tool_id="openai_image_gen_tool",
         output="image_context_fallback",
-        inputs=[Variable(name="prompt_context_fallback", description="tile_context with fallback prompt")],
+        inputs=[Variable(name="false_image_gen_input", description="A dict with scene_description, tile_index and fallback_image_prompt")],
         condition="if $validated_context.scene_validation_result is false"
     )
 
@@ -86,10 +86,7 @@ def run_tile_generation_agent(scene_description: str, output_tile_name: str) -> 
         task="Upload image to Supabase",
         tool_id="supabase_asset_uploader_tool",
         output="final_context",
-        inputs=[
-            Variable(name="image_context_valid", description="tile_context from valid prompt image"),
-            Variable(name="image_context_fallback", description="tile_context from fallback prompt image")
-        ]
+        inputs=[Variable(name="supabase_upload_input", description="A dict with the scene_description, tile_index, local image path")]
     )
 
     with execution_context(end_user_id="tile-user", additional_data={"scene_description": scene_description, "tile_index": output_tile_name}):
