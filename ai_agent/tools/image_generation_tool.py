@@ -4,11 +4,11 @@ from pathlib import Path
 import requests
 import uuid
 import os
-import openai
+from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
 class OpenAIImageGenSchema(BaseModel):
@@ -18,9 +18,9 @@ class OpenAIImageGenSchema(BaseModel):
 class OpenAIImageGenTool(Tool[str]):
     id: str = "openai_image_gen_tool"
     name: str = "OpenAI Image Generator Tool"
-    description: str = "Generates a low-resolution PNG image using OpenAI DALL·E 3 and saves it locally."
+    description: str = "Generates a low-res image using DALL·E 3 and saves it as a PNG locally."
     args_schema: type[BaseModel] = OpenAIImageGenSchema
-    output_schema: tuple[str, str] = ("str", "The local file path to the generated image")
+    output_schema: tuple[str, str] = ("str", "The local path to the generated image")
 
     def run(self, _: ToolRunContext, prompt: str) -> str:
         output_dir = Path("generated_images")
@@ -30,15 +30,17 @@ class OpenAIImageGenTool(Tool[str]):
         image_path = output_dir / image_filename
 
         try:
-            response = openai.Image.create(
+            response = client.images.generate(
+                model="dall-e-3",
                 prompt=prompt,
                 n=1,
-                size="256x256",
-                response_format="url",
+                size="256x256",  # Low resolution for savings
+                response_format="url"
             )
-            image_url = response["data"][0]["url"]
 
+            image_url = response.data[0].url
             img_data = requests.get(image_url).content
+
             with open(image_path, "wb") as f:
                 f.write(img_data)
 
