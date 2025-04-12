@@ -6,25 +6,24 @@ import os
 
 
 class SupabaseUploadSchema(BaseModel):
-    """Inputs for uploading a 3D asset to Supabase storage."""
-    file_path: str = Field(..., description="Local path to the 3D asset file to upload (e.g. .gltf)")
-    destination_name: str = Field(..., description="The name the file should be saved as in Supabase storage")
+    """Inputs for uploading an image to Supabase storage."""
+    file_path: str = Field(..., description="Local path to the image file to upload (e.g. .png)")
+    tile_name: str = Field(..., description="Name to save the image as in Supabase")
 
 
 class SupabaseAssetUploaderTool(Tool[str]):
-    """Uploads a 3D asset file to Supabase and returns a public URL."""
+    """Uploads an asset file to Supabase and returns a public URL."""
 
     id: str = "supabase_asset_uploader_tool"
     name: str = "Supabase Asset Uploader Tool"
-    description: str = (
-        "Uploads a 3D asset file (ONLY model/gltf-binary MIME type is accepted) to a Supabase storage bucket and returns the public URL."
-    )
+    description: str = "Uploads an asset file to a Supabase bucket and returns a public URL."
     args_schema: type[BaseModel] = SupabaseUploadSchema
-    output_schema: tuple[str, str] = ("str", "The public URL where the asset can be accessed.")
+    output_schema: tuple[str, str] = ("str", "The public URL of the uploaded file.")
 
-    def run(self, _: ToolRunContext, file_path: str, destination_name: str) -> str:
+    def run(self, _: ToolRunContext, file_path: str, tile_name: str) -> str:
         SUPABASE_URL = os.getenv("SUPABASE_URL")
         SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+        BUCKET = "encode-assets"
 
         local_file = Path(file_path)
         if not local_file.exists():
@@ -34,14 +33,14 @@ class SupabaseAssetUploaderTool(Tool[str]):
             headers = {
                 "apikey": SUPABASE_KEY,
                 "Authorization": f"Bearer {SUPABASE_KEY}",
-                "Content-Type": "application/octet-stream"
+                "Content-Type": "image/png"
             }
 
-            upload_url = f"{SUPABASE_URL}/storage/v1/object/encode-assets/{destination_name}"
-            response = requests.post(upload_url, headers=headers, data=f)
+            upload_url = f"{SUPABASE_URL}/storage/v1/object/{BUCKET}/{tile_name}"
+            response = requests.put(upload_url, headers=headers, data=f)
 
         if response.ok:
-            public_url = f"{SUPABASE_URL}/storage/v1/object/public/encode-assets/{destination_name}"
+            public_url = f"{SUPABASE_URL}/storage/v1/object/public/{BUCKET}/{tile_name}"
             return public_url
         else:
             return f"Upload failed: {response.status_code} - {response.text}"
