@@ -8,8 +8,8 @@ import google.generativeai as genai
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 
-class TileContext(BaseModel):
-    tile_context: dict
+class EmptySchema(BaseModel):
+    pass
 
 
 class SceneValidatorTool(Tool[dict]):
@@ -18,22 +18,23 @@ class SceneValidatorTool(Tool[dict]):
     id: str = "gemini_scene_validator_tool"
     name: str = "Scene Validator Tool"
     description: str = (
-        "Uses Gemini 1.5 Pro to determine if a described scene fits contextually within provided game environment images. "
-        "Reads 'scene_description' from tile_context and writes 'scene_validation_result': true/false."
+        "Uses Gemini 1.5 Pro to determine if a described scene fits within the game environment images. "
+        "Returns a dict with 'scene_validation_result'."
     )
-    args_schema: type[BaseModel] = TileContext
+    args_schema: type[BaseModel] = EmptySchema
     output_schema: tuple[str, str] = (
         "json",
-        "Updated tile_context with 'scene_validation_result': true or false"
+        "A dictionary with 'scene_validation_result': true or false and optional 'validation_error'."
     )
 
-    def run(self, _: ToolRunContext, tile_context: dict) -> dict:
-        scene_description = tile_context.get("scene_description", "")
+    def run(self, ctx: ToolRunContext) -> dict:
+        scene_description = ctx.execution_context.additional_data.get("scene_description")
 
         if not scene_description:
-            tile_context["scene_validation_result"] = False
-            tile_context["validation_error"] = "Missing 'scene_description'"
-            return tile_context
+            return {
+                "scene_validation_result": False,
+                "validation_error": "Missing 'scene_description'"
+            }
 
         model = genai.GenerativeModel("gemini-1.5-pro")
 
@@ -48,9 +49,10 @@ class SceneValidatorTool(Tool[dict]):
                 img = Image.open(path)
                 image_list.append(img)
             except Exception:
-                tile_context["scene_validation_result"] = False
-                tile_context["validation_error"] = f"Failed to load image: {path}"
-                return tile_context
+                return {
+                    "scene_validation_result": False,
+                    "validation_error": f"Failed to load image: {path}"
+                }
 
         query = (
             "You are an AI scene validator. Given the following images of a game environment and a described scene, "
@@ -61,11 +63,11 @@ class SceneValidatorTool(Tool[dict]):
         try:
             response = model.generate_content([query] + image_list, generation_config={"temperature": 0})
             answer = response.text.strip().lower()
-
-            tile_context["scene_validation_result"] = "true" in answer
-
+            return {
+                "scene_validation_result": "true" in answer
+            }
         except Exception as e:
-            tile_context["scene_validation_result"] = False
-            tile_context["validation_error"] = f"Validation failed: {e}"
-
-        return tile_context
+            return {
+                "scene_validation_result": False,
+                "validation_error": f"Validation failed: {e}"
+            }
