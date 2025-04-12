@@ -18,7 +18,6 @@ _tool_registry = InMemoryToolRegistry.from_local_tools([
 ])
 
 _config = Config.from_default(
-    storage_class=StorageClass.CLOUD,
     llm_provider=LLMProvider.GOOGLE_GENERATIVE_AI,
     llm_model_name=LLMModel.GEMINI_2_0_FLASH
 )
@@ -100,6 +99,7 @@ def run_tile_generation_agent(prompt: str, tile_name: str) -> str:
     plan = builder.build()
     print(plan.model_dump_json(indent=2))
 
+    _portia.storage.save_plan(plan)
     plan_run = _portia.run_plan(plan)
     print(plan_run.model_dump_json(indent=2))
 
