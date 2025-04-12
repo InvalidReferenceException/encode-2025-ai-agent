@@ -36,71 +36,72 @@ def run_tile_generation_agent(scene_description: str, output_tile_name: str) -> 
     """
 
     builder = PlanBuilder(query=agent_instruction)
-
+    
     # STEP 1: Scene validation
     builder.step(
         task="Validate scene from scene_description.",
         tool_id="gemini_scene_validator_tool",
+        inputs=[Variable(name="scene_prompt_input", description=f"A dict with {{ 'scene_description': scene_description, 'tile_index': output_tile_name }}")],
         output="validated_context"
     )
 
-    # # STEP 2: Generate image prompt if valid
-    # builder.step(
-    #     task="Generate image prompt from scene description",
-    #     tool_id="gemini_image_prompt_tool",
-    #     output="prompt_context_valid",
-    #     inputs=[Variable(name="validated_context", description="tile_context with validation result")],
-    #     condition="if $validated_context.scene_validation_result is true"
-    # )
-
-    # # STEP 3: Generate fallback image prompt if invalid
-    # builder.step(
-    #     task="Generate fallback image prompt",
-    #     tool_id="gemini_image_prompt_tool",
-    #     output="prompt_context_fallback",
-    #     inputs=[Variable(name="validated_context", description="tile_context with validation result")],
-    #     condition="if $validated_context.scene_validation_result is false"
-    # )
-
-    # # STEP 4: Generate image from final_image_prompt
-    # builder.step(
-    #     task="Generate image from final_image_prompt",
-    #     tool_id="openai_image_gen_tool",
-    #     output="image_context_valid",
-    #     inputs=[Variable(name="prompt_context_valid", description="tile_context with final prompt")],
-    #     condition="if $validated_context.scene_validation_result is true"
-    # )
-
-    # # STEP 5: Generate image from fallback_image_prompt
-    # builder.step(
-    #     task="Generate image from fallback_image_prompt",
-    #     tool_id="openai_image_gen_tool",
-    #     output="image_context_fallback",
-    #     inputs=[Variable(name="prompt_context_fallback", description="tile_context with fallback prompt")],
-    #     condition="if $validated_context.scene_validation_result is false"
-    # )
-
-    # # STEP 6: Upload image to Supabase (from whichever path succeeded)
-    # builder.step(
-    #     task="Upload image to Supabase",
-    #     tool_id="supabase_asset_uploader_tool",
-    #     output="final_context",
-    #     inputs=[
-    #         Variable(name="image_context_valid", description="tile_context from valid prompt image"),
-    #         Variable(name="image_context_fallback", description="tile_context from fallback prompt image")
-    #     ]
-    # )
-
-    # Build plan and wrap in context
-    plan = builder.build()
-    new_plan = _portia.plan(
-        query=agent_instruction,
-        example_plans=[*DEFAULT_EXAMPLE_PLANS, plan]
+    # STEP 2: Generate image prompt if valid
+    builder.step(
+        task="Generate image prompt from scene description",
+        tool_id="gemini_image_prompt_tool",
+        output="prompt_context_valid",
+        inputs=[Variable(name="validated_context", description="tile_context with validation result")],
+        condition="if $validated_context.scene_validation_result is true"
     )
 
-    print(new_plan.pretty_print())
-    
+    # STEP 3: Generate fallback image prompt if invalid
+    builder.step(
+        task="Generate fallback image prompt",
+        tool_id="gemini_image_prompt_tool",
+        output="prompt_context_fallback",
+        inputs=[Variable(name="validated_context", description="tile_context with validation result")],
+        condition="if $validated_context.scene_validation_result is false"
+    )
+
+    # STEP 4: Generate image from final_image_prompt
+    builder.step(
+        task="Generate image from final_image_prompt",
+        tool_id="openai_image_gen_tool",
+        output="image_context_valid",
+        inputs=[Variable(name="prompt_context_valid", description="tile_context with final prompt")],
+        condition="if $validated_context.scene_validation_result is true"
+    )
+
+    # STEP 5: Generate image from fallback_image_prompt
+    builder.step(
+        task="Generate image from fallback_image_prompt",
+        tool_id="openai_image_gen_tool",
+        output="image_context_fallback",
+        inputs=[Variable(name="prompt_context_fallback", description="tile_context with fallback prompt")],
+        condition="if $validated_context.scene_validation_result is false"
+    )
+
+    # STEP 6: Upload image to Supabase (from whichever path succeeded)
+    builder.step(
+        task="Upload image to Supabase",
+        tool_id="supabase_asset_uploader_tool",
+        output="final_context",
+        inputs=[
+            Variable(name="image_context_valid", description="tile_context from valid prompt image"),
+            Variable(name="image_context_fallback", description="tile_context from fallback prompt image")
+        ]
+    )
+
     with execution_context(end_user_id="tile-user", additional_data={"scene_description": scene_description, "tile_index": output_tile_name}):
+        # Build plan and wrap in context
+        plan = builder.build()
+        new_plan = _portia.plan(
+            query=agent_instruction,
+            example_plans=[*DEFAULT_EXAMPLE_PLANS, plan]
+        )
+
+        print(new_plan.pretty_print())
+    
         assert "scene_description" in get_execution_context().additional_data
         plan_run = _portia.run_plan(new_plan)
 

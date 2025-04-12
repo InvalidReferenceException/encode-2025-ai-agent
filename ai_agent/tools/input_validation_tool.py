@@ -1,5 +1,5 @@
 import os
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from portia.tool import Tool, ToolRunContext
 from PIL import Image
 import google.generativeai as genai
@@ -8,8 +8,9 @@ import google.generativeai as genai
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 
-class EmptySchema(BaseModel):
-    pass
+class SceneValidationSchema(BaseModel):
+    """Inputs for checking whether a described scene fits the given images."""
+    scene_description: str = Field(..., description="The scene the user wants to place (e.g., 'a castle on a hill')")
 
 
 class SceneValidatorTool(Tool[dict]):
@@ -21,13 +22,14 @@ class SceneValidatorTool(Tool[dict]):
         "Uses Gemini 1.5 Pro to determine if a described scene fits within the game environment images. "
         "Returns a dict with 'scene_validation_result'."
     )
-    args_schema: type[BaseModel] = EmptySchema
+    args_schema: type[BaseModel] = SceneValidationSchema
+    requires_arguments: bool = False
     output_schema: tuple[str, str] = (
         "json",
         "A dictionary with 'scene_validation_result': true or false and optional 'validation_error'."
     )
 
-    def run(self, ctx: ToolRunContext) -> dict:
+    def run(self, ctx: ToolRunContext, scene_description: str) -> dict:
         scene_description = ctx.execution_context.additional_data.get("scene_description")
 
         if not scene_description:
