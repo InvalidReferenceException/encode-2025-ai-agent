@@ -37,7 +37,11 @@ def run_tile_generation_agent(prompt: str, tile_name: str) -> str:
     5. Upload that file to Supabase as '{tile_name}.png' and return the public URL.
     """
 
+    
     builder = PlanBuilder(query=agent_prompt)
+
+    builder.input(name="prompt", description="User's scene prompt")
+    builder.input(name="tile_name", description="The file name to save and upload")
 
     builder.step("Validate the scene", "gemini_scene_validator_tool", "scene_validation") \
         .input("prompt", "The scene to validate")
