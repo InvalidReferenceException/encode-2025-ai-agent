@@ -1,36 +1,43 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from portia.tool import Tool, ToolRunContext
 from pathlib import Path
 import requests
-import uuid
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
 
+# Load environment variables and initialize OpenAI client
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
-class OpenAIImageGenSchema(BaseModel):
-    prompt: str = Field(..., description="The prompt describing the image to generate")
-    tile_name: str = Field(..., description="The filename to save the generated image as (without extension)")
+class TileContext(BaseModel):
+    tile_context: dict
 
 
-class OpenAIImageGenTool(Tool[str]):
+class OpenAIImageGenTool(Tool[dict]):
+    """Generates a low-res image using DALL·E 2 and saves it locally, updating tile_context."""
+
     id: str = "openai_image_gen_tool"
     name: str = "OpenAI Image Generator Tool"
-    description: str = "Generates a low-res image using DALL·E 2 and saves it locally with a specific name."
-    args_schema: type[BaseModel] = OpenAIImageGenSchema
-    output_schema: tuple[str, str] = ("str", "The local path to the generated image")
+    description: str = (
+        "Uses a prompt in tile_context['final_image_prompt'] or tile_context['fallback_image_prompt'] "
+        "to generate an image with DALL·E 2. Saves it locally and adds 'generated_image_path' to tile_context."
+    )
+    args_schema: type[BaseModel] = TileContext
+    output_schema: tuple[str, str] = ("json", "Updated tile_context with 'generated_image_path'")
 
-    def run(self, _: ToolRunContext, prompt: str, tile_name: str) -> str:
-        from openai import OpenAI
-        client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    def run(self, _: ToolRunContext, tile_context: dict) -> dict:
+        prompt = tile_context.get("final_image_prompt") or tile_context.get("fallback_image_prompt")
+        if not prompt:
+            tile_context["generated_image_path"] = "Error: No image prompt found in context."
+            return tile_context
 
+        output_filename_base = tile_context.get("tile_index", f"tile_{os.urandom(4).hex()}")
         output_dir = Path("generated_images")
         output_dir.mkdir(exist_ok=True)
 
-        image_filename = f"{tile_name}.png"
+        image_filename = f"{output_filename_base}.png"
         image_path = output_dir / image_filename
 
         try:
@@ -48,8 +55,9 @@ class OpenAIImageGenTool(Tool[str]):
             with open(image_path, "wb") as f:
                 f.write(img_data)
 
-            return str(image_path.resolve())
+            tile_context["generated_image_path"] = str(image_path.resolve())
 
         except Exception as e:
-            return f"OpenAI image generation failed: {e}"
+            tile_context["generated_image_path"] = f"Image generation failed: {e}"
 
+        return tile_context

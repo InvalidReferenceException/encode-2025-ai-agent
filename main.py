@@ -7,24 +7,27 @@ app = FastAPI()
 
 
 class AssetRequest(BaseModel):
-    prompt: str
-    tile: int
+    scene_description: str
+    tile_index: int
     neighbours: Tuple[int, ...]
-    asset_type: Optional[str] = "voxel"
 
 
 @app.get("/")
 def root():
     return {"message": "STEVE is online and ready to generate!"}
 
+
 @app.post("/generate")
 def generate_asset(data: AssetRequest):
-    tile_name = f"tile_{data.tile}"
-    supabase_url = run_tile_generation_agent(prompt=data.prompt, tile_name=tile_name)
+    output_tile_name = f"tile_{data.tile_index}"
+    supabase_url = run_tile_generation_agent(
+        scene_description=data.scene_description,
+        output_tile_name=output_tile_name
+    )
 
     return {
         "status": "success" if "http" in supabase_url else "error",
-        "tile": tile_name,
+        "tile": output_tile_name,
         "supabase_url": supabase_url,
-        "prompt": data.prompt
+        "scene_description": data.scene_description
     }
