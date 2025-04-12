@@ -29,10 +29,9 @@ def run_tile_generation_agent(scene_description: str, output_tile_name: str) -> 
     agent_instruction = f"""
     You are creating a tile named '{output_tile_name}'.
     1. Validate the scene: '{scene_description}' using the scene validator tool.
-    2. If the validator returns 'true', generate an image prompt from it.
-    3. If the validator returns 'false', generate a better fitting prompt.
-    4. Use the prompt to generate an image and save it as '{output_tile_name}.png'.
-    5. Upload that file to Supabase as '{output_tile_name}.png' and return the public URL.
+    2. If the validator returns 'true', generate an image prompt from it but if the validator returns 'false', generate a better fitting prompt.
+    3. Use the prompt to generate an image (save it as '{output_tile_name}.png') and 3D asset (save it as '{output_tile_name}.glb').
+    5. Upload both the image .png file and 3D asset .glb file to Supabase as and return the public URL.
     """
 
     builder = PlanBuilder(query=agent_instruction)
@@ -86,7 +85,7 @@ def run_tile_generation_agent(scene_description: str, output_tile_name: str) -> 
         task="Upload image to Supabase",
         tool_id="supabase_asset_uploader_tool",
         output="final_context",
-        inputs=[Variable(name="supabase_upload_input", description="A dict with the scene_description, tile_index, local image path")]
+        inputs=[Variable(name="supabase_upload_input", description="A dict with the tile_index, local image path and local 3D asset path")]
     )
 
     with execution_context(end_user_id="tile-user", additional_data={"scene_description": scene_description, "tile_index": output_tile_name}):
