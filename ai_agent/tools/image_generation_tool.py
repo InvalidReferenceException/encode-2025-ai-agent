@@ -1,8 +1,8 @@
+import os
 from pydantic import BaseModel, Field
 from portia.tool import Tool, ToolRunContext
 from pathlib import Path
 import requests
-import os
 from openai import OpenAI
 from dotenv import load_dotenv
 
@@ -19,25 +19,23 @@ class ImageGenSchema(BaseModel):
 
 
 class OpenAIImageGenTool(Tool[dict]):
-    """Generates a low-res image using DALL·E 2 and saves it locally, updating tile_context."""
+    """Generates a low-res image using DALL·E 2 and saves it locally."""
 
     id: str = "openai_image_gen_tool"
     name: str = "OpenAI Image Generator Tool"
-    description: str = (
-        "Uses a prompt to generate an image with DALL·E 2 and saves it locally."
-    )
+    description: str = "Uses a prompt to generate an image with DALL·E 2 and saves it locally."
     args_schema: type[BaseModel] = ImageGenSchema
     output_schema: tuple[str, str] = (
         "json",
         "A dictionary with the 'scene_description', 'tile_index', and 'local_image_path'."
     )
 
-    def run(self, _: ToolRunContext, scene_description: str, tile_index: str, image_prompt: str) -> dict:        
+    def run(self, _: ToolRunContext, scene_description: str, tile_index: str, image_prompt: str) -> dict:
         if not image_prompt:
             return {
                 "scene_description": scene_description,
                 "tile_index": tile_index,
-                "generated_image_path": ""
+                "local_image_path": ""
             }
 
         output_dir = Path("generated_images")
@@ -56,18 +54,23 @@ class OpenAIImageGenTool(Tool[dict]):
             )
 
             image_url = response.data[0].url
+            print(f"Image URL: {image_url}")
+
             img_data = requests.get(image_url).content
+            print(f"Downloaded image size: {len(img_data)} bytes")
 
             with open(image_path, "wb") as f:
                 f.write(img_data)
 
-            generated_image_path = str(image_path.resolve())
+            saved_path = str(image_path.resolve())
+            print(f"Image successfully saved at: {saved_path}")
 
         except Exception as e:
-            generated_image_path = ""
+            print(f"Image generation failed: {e}")
+            saved_path = ""
 
         return {
             "scene_description": scene_description,
             "tile_index": tile_index,
-            "generated_image_path": generated_image_path
+            "local_image_path": saved_path
         }
