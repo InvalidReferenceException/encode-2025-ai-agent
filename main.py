@@ -6,6 +6,8 @@ app = FastAPI()
 
 class AssetRequest(BaseModel):
     prompt: str
+    tile: int
+    neighbours: tuple[int]
     asset_type: Optional[str] = "voxel"
 
 @app.get("/")

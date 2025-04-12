@@ -12,7 +12,7 @@ from portia import InMemoryToolRegistry
 from tools.image_prompt_generation_tool import GeminiImagePromptTool
 from tools.input_validation_tool import SceneValidatorTool
 from tools.supabase_asset_uploader import SupabaseAssetUploaderTool
-from tools.image_generation_tool import GeminiImageGenTool
+from tools.image_generation_tool import OpenAIImageGenTool
 
 load_dotenv()
 
@@ -20,7 +20,7 @@ custom_tool_registry = InMemoryToolRegistry.from_local_tools(
     [
         SceneValidatorTool(),
         GeminiImagePromptTool(),
-        GeminiImageGenTool(),
+        OpenAIImageGenTool(),
         SupabaseAssetUploaderTool()
     ]
 )
