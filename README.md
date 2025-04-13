@@ -14,15 +14,26 @@
 
 ---
 
+## 🌐 Architecture Overview
+
+- **🧠 Python Backend**: Uses Portia AI to generate images and 3D models from text prompts
+- **🏗️ Dojo Engine**: Manages on-chain components, systems, and world logic using StarkNet
+- **🎮 Three.js Frontend**: Renders tiles and 3D models in a fully interactive browser experience
+- **🪂 Supabase**: Stores and serves public URLs for `.glb` and `.png` assets
+
+---
+
 ## 🚀 Getting Started
 
 ### 📦 Requirements
 
 - Python 3.11+
 - `pip` or `poetry`
+- Dojo CLI (`sozo`, `katana`, `torii`)
+- Node.js (for frontend)
 - `.env` file with API keys:
 
-  ```
+  ```env
   PORTIA_API_KEY=
 
   OPENAI_API_KEY=
@@ -33,15 +44,18 @@
   SUPABASE_SERVICE_ROLE_KEY=
   ```
 
-### 📥 Install Dependencies
+---
 
-You can install dependencies using `pip`:
+## 📥 Install Backend Dependencies
+
+Using `pip`:
 
 ```bash
+cd python-backend
 pip install -r requirements.txt
 ```
 
-Or with `poetry` if you're using it:
+Or with `poetry`:
 
 ```bash
 poetry install
@@ -49,45 +63,75 @@ poetry install
 
 ---
 
-## 🧪 Running the API Server
-
-Start the FastAPI server using `uvicorn`:
+## 🧪 Run Backend API Server
 
 ```bash
-uvicorn app.main:app --reload
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-Assumes your FastAPI entrypoint is in `app/main.py` with a variable named `app`.
+> Assumes your FastAPI entrypoint is in `app/main.py`.
+
+---
+
+## ⛓️ Run Dojo Locally (On-chain World)
+
+From the `dojo/` directory:
+
+```bash
+katana     # in one terminal
+torii --world <world_address>     # in another terminal
+sozo migrate --name localworld    # to deploy the world
+```
+
+Configure your `dojo_dev.toml` with the deployed world address for Torii.
+
+---
+
+## 🖼️ Image + 3D Generation Flow
+
+1. Portia AI receives a prompt
+2. Generates an image using OpenAI DALL·E
+3. Converts it to a 3D `.glb` model using Stability AI
+4. Stores both files in `generated_assets/`
+5. Uploads to Supabase and returns a public URL
 
 ---
 
 ## 🛰️ Example cURL Request
 
-Here’s how to make a request to STEVE once the server is running:
-
 ```bash
 curl -X POST http://localhost:8000/generate \
   -H "Content-Type: application/json" \
   -d '{
-    "scene_description": ""A cherry blossom"",
+    "scene_description": "A cherry blossom",
     "tile_index": 42,
     "neighbours": [11, 13, 7]
   }'
 ```
 
-### Expected Output:
+### ✅ Output
 
 ```json
 {
-  "uploaded_url": "generated_images/tile-42.glb"
+  "uploaded_url": "https://<supabase-link>/encode-assets/42.glb"
 }
 ```
 
 ---
 
-## 💾 Upload to Supabase
+## 🎮 Frontend (Three.js)
 
-Once the 3D model is created, STEVE automatically uploads both the `.png` and `.glb` files to a Supabase bucket and returns a public URL for the 3D asset.
+The frontend is located in `vue-frontend/` and uses **Three.js** to render tiles and load `.glb` models dynamically from Supabase.
+
+### 📦 Setup
+
+```bash
+cd vue-frontend
+npm install
+npm run dev
+```
+
+> Make sure environment variables in the frontend match your Supabase setup.
 
 ---
 
@@ -95,13 +139,20 @@ Once the 3D model is created, STEVE automatically uploads both the `.png` and `.
 
 ```
 .
-├── app/
-│   ├── main.py            # FastAPI entrypoint
-│   ├── tools/             # Tools for image gen, 3D modeling, and upload
-│   └── models/            # Pydantic schemas
-├── generated_images/      # Output directory for local images and models
-├── .env                   # API keys
-├── requirements.txt
+├── python-backend/
+│   ├── app/
+│   │   ├── main.py
+│   │   └── tools/
+│   ├── generated_assets/
+│   ├── .env
+│   └── requirements.txt
+├── dojo/
+│   ├── src/
+│   ├── Scarb.toml
+│   └── dojo_dev.toml
+├── vue-frontend/
+│   ├── public/
+│   └── src/
 └── README.md
 ```
 
@@ -109,16 +160,19 @@ Once the 3D model is created, STEVE automatically uploads both the `.png` and `.
 
 ## 🛠 Tech Stack
 
-- **OpenAI DALL·E** – Image generation
-- **Stability AI** – 3D asset generation
-- **Supabase** – Asset storage
-- **FastAPI** – Backend API
-- **Python** – Everything else
+- **Portia AI** – Agent orchestration
+- **OpenAI (DALL·E)** – Image generation
+- **Stability AI** – 3D model generation
+- **Supabase** – Asset storage & CDN
+- **Dojo + StarkNet** – On-chain systems and world
+- **FastAPI** – API backend
+- **Three.js** – WebGL frontend
+- **Python + Vue.js** – Full stack
 
 ---
 
 ## 👾 Built for ENCODE 2025 Hackathon
 
-Made with ❤️ by a team of agents and humans — STEVE is your AI Terraforming sidekick.
+Made with ❤️ by a team of agents and humans — Genesis Void is your sandbox for using AI generated assets to create your own world on the blockchain!
 
 ---
