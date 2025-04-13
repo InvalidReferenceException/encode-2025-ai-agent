@@ -59,7 +59,7 @@ Using OpenAI's DALL·E and your chosen prompt, STEVE produces this concept art:
 
 The `.glb` model is rendered in the game world (via Three.js frontend) and automatically synced to its on-chain coordinates using Dojo.
 
-![frontend_view_log_house](https://github.com/user-attachments/assets/4a5b2c63-3479-4941-95bf-0e5549af8478)
+![frontend_view_log_house](https://github.com/user-attachments/assets/dcb6fb0c-de07-44b4-a629-873919f9eb57)
 
 > The asset lives on tile `27`, with metadata and ownership stored entirely on-chain — and the 3D model hosted via Supabase.
 
