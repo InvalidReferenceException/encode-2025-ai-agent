@@ -51,11 +51,15 @@ STEVE parses the prompt, understands the tile index and neighbors, and begins ge
 
 Using OpenAI's DALL·E and your chosen prompt, STEVE produces this concept art:
 
+![image_gen_log_house_frontend](https://github.com/user-attachments/assets/6f2a2f15-5f2e-45d8-b41f-389e4446b74b)
+
 > The image is saved locally, then sent to Stability AI for 3D conversion.
 
 ### 🌍 3. In-Game Asset Placement
 
 The `.glb` model is rendered in the game world (via Three.js frontend) and automatically synced to its on-chain coordinates using Dojo.
+
+![frontend_view_log_house](https://github.com/user-attachments/assets/4a5b2c63-3479-4941-95bf-0e5549af8478)
 
 > The asset lives on tile `27`, with metadata and ownership stored entirely on-chain — and the 3D model hosted via Supabase.
 
