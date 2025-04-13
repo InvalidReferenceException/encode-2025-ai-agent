@@ -36,6 +36,40 @@ It’s a living, breathing, generative world. And Steve? He’s here to help you
 
 ---
 
+## 🧩 Example Use Case
+
+Let’s walk through how a player interacts with the world — and how STEVE brings their vision to life:
+
+---
+
+### 👤 1. User Input
+
+The player chats with STEVE and says:
+
+> _"Create a log house on this tile."_
+
+STEVE parses the prompt, understands the tile index and neighbors, and begins generating the asset.
+
+---
+
+### 🖼️ 2. Image Generation
+
+Using OpenAI's DALL·E and your chosen prompt, STEVE produces this concept art:
+
+> The image is saved locally, then sent to Stability AI for 3D conversion.
+
+---
+
+### 🌍 3. In-Game Asset Placement
+
+The `.glb` model is rendered in the game world (via Three.js frontend) and automatically synced to its on-chain coordinates using Dojo.
+
+> The asset lives on tile `27`, with metadata and ownership stored entirely on-chain — and the 3D model hosted via Supabase.
+
+---
+
+STEVE handles the entire pipeline: image → model → storage → on-chain registration → render.
+
 ## 🌐 Architecture Overview
 
 - **🧠 Python Backend**: Uses Portia AI to generate images and 3D models from text prompts
