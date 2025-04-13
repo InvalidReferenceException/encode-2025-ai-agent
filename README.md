@@ -27,8 +27,6 @@ It’s a living, breathing, generative world. And Steve? He’s here to help you
 
 **STEVE** is an AI-powered agent designed to autonomously create and manage **3D assets** for a hybrid **Minecraft x Monopoly-style** game built on the **blockchain**. STEVE bridges the gap between player-driven creativity and scalable world-building by generating terrain, structures, and game elements that live on-chain.
 
----
-
 ## 🔤 What does STEVE stand for?
 
 > **S.T.E.V.E.**  
@@ -40,7 +38,6 @@ It’s a living, breathing, generative world. And Steve? He’s here to help you
 
 Let’s walk through how a player interacts with the world — and how STEVE brings their vision to life:
 
----
 
 ### 👤 1. User Input
 
@@ -50,15 +47,11 @@ The player chats with STEVE and says:
 
 STEVE parses the prompt, understands the tile index and neighbors, and begins generating the asset.
 
----
-
 ### 🖼️ 2. Image Generation
 
 Using OpenAI's DALL·E and your chosen prompt, STEVE produces this concept art:
 
 > The image is saved locally, then sent to Stability AI for 3D conversion.
-
----
 
 ### 🌍 3. In-Game Asset Placement
 
