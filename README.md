@@ -1,6 +1,28 @@
 # ENCODE 2025 HACKATHON - GENESIS VOID
 ---
 
+## 🎮 The Game: GENESIS VOID
+
+An on-chain AI sandbox where every step you take carves reality out of the void.
+
+Powered by Portia AI and LLM integration, just say "build a blue castle" and watch it appear in 3D before your eyes. 🏰✨
+
+Players can **own tiles**, **rent land**, and **capture enemy zones** in a world where everything — terrain, buildings, ownership, and state — is stored fully on-chain using Starkware’s **Dojo engine** and **Cairo 1.0**.
+
+In a strategic twist, **surrounding enemy zones lets you capture the center** — think **Minecraft meets chess**, all on the blockchain.
+
+**Steve**, your AI assistant, turns your imagination into 3D assets, stores them in Supabase, and syncs them into the on-chain world. Built for full decentralization and player ownership.
+
+Behind the scenes:
+- **Dojo** handles the on-chain world state
+- **Nethermind** powers seamless Starknet execution
+- **Portia AI** + **LLMs** drive generative design
+
+This isn’t just a game.  
+It’s a living, breathing, generative world. And Steve? He’s here to help you shape it.
+
+---
+
 ## 🧠 About STEVE (using Portia AI)
 
 **STEVE** is an AI-powered agent designed to autonomously create and manage **3D assets** for a hybrid **Minecraft x Monopoly-style** game built on the **blockchain**. STEVE bridges the gap between player-driven creativity and scalable world-building by generating terrain, structures, and game elements that live on-chain.
