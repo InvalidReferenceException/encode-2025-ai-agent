@@ -3,13 +3,13 @@
 
 ## 🎮 The Game: GENESIS VOID
 
-An on-chain AI sandbox where every step you take carves reality out of the void.
+An on-chain AI sandbox game where every step you take carves reality out of the void.
 
 Powered by Portia AI and LLM integration, just say "build a blue castle" and watch it appear in 3D before your eyes. 🏰✨
 
-Players can **own tiles**, **rent land**, and **capture enemy zones** in a world where everything — terrain, buildings, ownership, and state — is stored fully on-chain using Starkware’s **Dojo engine** and **Cairo 1.0**.
+Players can **own tiles**, **rent land**, and **capture enemy tiles** in a world where everything — terrain, buildings, ownership, and state — is stored fully on-chain using Starkware’s **Dojo engine** and **Cairo 1.0**.
 
-In a strategic twist, **surrounding enemy zones lets you capture the center** — think **Minecraft meets chess**, all on the blockchain.
+In a strategic twist, **surrounding enemy zones lets you capture the center** — think **Minecraft meets Monopoly**, all on the blockchain.
 
 **Steve**, your AI assistant, turns your imagination into 3D assets, stores them in Supabase, and syncs them into the on-chain world. Built for full decentralization and player ownership.
 
