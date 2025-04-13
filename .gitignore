@@ -1,3 +1,4 @@
 .env
 
 venv/
+python-backend/generated_assets/

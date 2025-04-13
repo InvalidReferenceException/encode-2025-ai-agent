@@ -1,10 +1,7 @@
-# ENCODE 2025 HACKATHON - STEVE
-
-**Smart Terraforming & Environment Visualization Engine**
-
+# ENCODE 2025 HACKATHON - GENESIS VOID
 ---
 
-## 🧠 About STEVE
+## 🧠 About STEVE (using Portia AI)
 
 **STEVE** is an AI-powered agent designed to autonomously create and manage **3D assets** for a hybrid **Minecraft x Monopoly-style** game built on the **blockchain**. STEVE bridges the gap between player-driven creativity and scalable world-building by generating terrain, structures, and game elements that live on-chain.
 
